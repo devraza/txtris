@@ -79,6 +79,11 @@ impl App {
             KeyCode::Char('q') | KeyCode::Esc => self.should_exit = true,
             KeyCode::Char('j') | KeyCode::Down => self.select_next(),
             KeyCode::Char('k') | KeyCode::Up => self.select_previous(),
+            KeyCode::Char('c') => {
+                if key.modifiers.contains(event::KeyModifiers::CONTROL) {
+                    self.should_exit = true;
+                }
+            }
             _ => {}
         }
     }
