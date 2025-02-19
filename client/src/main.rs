@@ -13,7 +13,7 @@ const MENU_HEADER_STYLE: Style = Style::new()
     .fg(ZINC.c100)
     .bg(BLUE.c600)
     .add_modifier(Modifier::BOLD);
-const HEADER_STYLE: Style = Style::new().fg(ROSE.c400).add_modifier(Modifier::BOLD);
+const HEADER_STYLE: Style = Style::new().fg(ROSE.c500).add_modifier(Modifier::BOLD);
 const SELECTED_STYLE: Style = Style::new().bg(ZINC.c700).add_modifier(Modifier::BOLD);
 
 fn main() -> Result<()> {
@@ -110,7 +110,7 @@ impl Widget for &mut App {
 impl App {
     fn render_header(area: Rect, buf: &mut Buffer) {
         Block::new()
-            .title(Line::raw("txtris").centered().style(HEADER_STYLE))
+            .title(Line::raw("  txtris  ").centered().style(HEADER_STYLE))
             .borders(Borders::TOP)
             .render(area, buf);
     }
