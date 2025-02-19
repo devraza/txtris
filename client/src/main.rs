@@ -52,6 +52,29 @@ impl Default for App {
 }
 
 impl App {
+    fn render_header(area: Rect, buf: &mut Buffer) {
+        Block::new()
+            .title(Line::raw("  txtris  ").centered().style(HEADER_STYLE))
+            .borders(Borders::TOP)
+            .render(area, buf);
+    }
+
+    fn render_list(&mut self, area: Rect, buf: &mut Buffer) {
+        let block = Block::new()
+            .title(Line::raw(" Menu ").centered().style(MENU_HEADER_STYLE))
+            .borders(Borders::ALL);
+
+        let items: Vec<&'static str> = self.menu.items.clone();
+
+        let list = List::new(items)
+            .block(block)
+            .highlight_style(SELECTED_STYLE)
+            .highlight_symbol(" ")
+            .highlight_spacing(HighlightSpacing::Always);
+
+        StatefulWidget::render(list, area, buf, &mut self.menu.state);
+    }
+
     fn run(mut self, mut terminal: DefaultTerminal) -> Result<()> {
         while !self.should_exit {
             terminal.draw(|frame| frame.render_widget(&mut self, frame.area()))?;
@@ -104,30 +127,5 @@ impl Widget for &mut App {
 
         App::render_header(header_area, buf);
         self.render_list(list_area, buf);
-    }
-}
-
-impl App {
-    fn render_header(area: Rect, buf: &mut Buffer) {
-        Block::new()
-            .title(Line::raw("  txtris  ").centered().style(HEADER_STYLE))
-            .borders(Borders::TOP)
-            .render(area, buf);
-    }
-
-    fn render_list(&mut self, area: Rect, buf: &mut Buffer) {
-        let block = Block::new()
-            .title(Line::raw(" Menu ").centered().style(MENU_HEADER_STYLE))
-            .borders(Borders::ALL);
-
-        let items: Vec<&'static str> = self.menu.items.clone();
-
-        let list = List::new(items)
-            .block(block)
-            .highlight_style(SELECTED_STYLE)
-            .highlight_symbol(" ")
-            .highlight_spacing(HighlightSpacing::Always);
-
-        StatefulWidget::render(list, area, buf, &mut self.menu.state);
     }
 }
