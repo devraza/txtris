@@ -46,7 +46,7 @@ impl Default for App {
     fn default() -> Self {
         Self {
             should_exit: false,
-            menu: MenuList::from_iter(["40L", "Blitz", "TxLeague"]),
+            menu: MenuList::from_iter(["40L", "Blitz", "txLadder"]),
         }
     }
 }
