@@ -4,9 +4,12 @@ use ratatui::{
     buffer::Buffer,
     crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind},
     layout::{Constraint, Flex, Layout, Rect},
-    style::{Modifier, Style, palette::tailwind::*, Stylize},
+    style::{Modifier, Style, Stylize, palette::tailwind::*},
     text::{Line, Span},
-    widgets::{Block, Borders, HighlightSpacing, List, ListState, StatefulWidget, Widget, Paragraph},
+    widgets::{
+        Block, Borders, HighlightSpacing, List, ListState, Padding, Paragraph, StatefulWidget,
+        Widget,
+    },
 };
 
 const GAME_HEADER_STYLE: Style = Style::new()
@@ -86,6 +89,7 @@ impl App {
     fn render_list(&mut self, area: Rect, buf: &mut Buffer) {
         let block = Block::new()
             .title(Line::raw(" Game ").centered().style(GAME_HEADER_STYLE))
+            .padding(Padding::symmetric(2, 1))
             .borders(Borders::ALL);
 
         let items: Vec<&'static str> = self.menu.items.clone();
@@ -101,7 +105,12 @@ impl App {
 
     fn render_profile(&mut self, area: Rect, buf: &mut Buffer) {
         let block = Block::new()
-            .title(Line::raw(" Profile ").centered().style(PROFILE_HEADER_STYLE))
+            .title(
+                Line::raw(" Profile ")
+                    .centered()
+                    .style(PROFILE_HEADER_STYLE),
+            )
+            .padding(Padding::symmetric(2, 1))
             .borders(Borders::ALL);
 
         let text = vec![
@@ -120,9 +129,7 @@ impl App {
             ]),
         ];
 
-        Paragraph::new(text)
-            .block(block)
-            .render(area, buf);
+        Paragraph::new(text).block(block).render(area, buf);
     }
 
     fn run(mut self, mut terminal: DefaultTerminal) -> Result<()> {
@@ -177,7 +184,11 @@ impl Widget for &mut App {
         ])
         .areas(area);
 
-        let center_area = center(main_area, Constraint::Length(50), Constraint::Percentage(60));
+        let center_area = center(
+            main_area,
+            Constraint::Length(50),
+            Constraint::Percentage(60),
+        );
 
         let [profile_area, list_outer_area] =
             Layout::vertical([Constraint::Percentage(50), Constraint::Percentage(50)])
