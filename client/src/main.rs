@@ -1,21 +1,18 @@
 use color_eyre::Result;
 use ratatui::{
+    DefaultTerminal,
     buffer::Buffer,
     crossterm::event::{self, Event, KeyCode, KeyEvent, KeyEventKind},
-    layout::{Constraint, Layout, Rect, Flex},
-    style::{
-        palette::tailwind::*,
-        Modifier, Style
-    },
+    layout::{Constraint, Flex, Layout, Rect},
+    style::{Modifier, Style, palette::tailwind::*},
     text::Line,
-    widgets::{
-        Block, Borders, HighlightSpacing, List, ListState,
-        StatefulWidget, Widget,
-    },
-    DefaultTerminal 
+    widgets::{Block, Borders, HighlightSpacing, List, ListState, StatefulWidget, Widget},
 };
 
-const MENU_HEADER_STYLE: Style = Style::new().fg(ZINC.c100).bg(BLUE.c600).add_modifier(Modifier::BOLD);
+const MENU_HEADER_STYLE: Style = Style::new()
+    .fg(ZINC.c100)
+    .bg(BLUE.c600)
+    .add_modifier(Modifier::BOLD);
 const HEADER_STYLE: Style = Style::new().fg(ROSE.c400).add_modifier(Modifier::BOLD);
 const SELECTED_STYLE: Style = Style::new().bg(ZINC.c700).add_modifier(Modifier::BOLD);
 
@@ -39,9 +36,7 @@ struct MenuList {
 
 impl FromIterator<&'static str> for MenuList {
     fn from_iter<I: IntoIterator<Item = &'static str>>(iter: I) -> Self {
-        let items = iter
-            .into_iter()
-            .collect();
+        let items = iter.into_iter().collect();
         let state = ListState::default();
         Self { items, state }
     }
@@ -51,11 +46,7 @@ impl Default for App {
     fn default() -> Self {
         Self {
             should_exit: false,
-            menu: MenuList::from_iter([
-                "40L",
-                "Blitz",
-                 "TxLeague",
-            ]),
+            menu: MenuList::from_iter(["40L", "Blitz", "TxLeague"]),
         }
     }
 }
@@ -106,11 +97,8 @@ fn center(area: Rect, horizontal: Constraint, vertical: Constraint) -> Rect {
 
 impl Widget for &mut App {
     fn render(self, area: Rect, buf: &mut Buffer) {
-        let [header_area, main_area] = Layout::vertical([
-            Constraint::Length(2),
-            Constraint::Fill(1),
-        ])
-        .areas(area);
+        let [header_area, main_area] =
+            Layout::vertical([Constraint::Length(2), Constraint::Fill(1)]).areas(area);
 
         let list_area = center(main_area, Constraint::Length(30), Constraint::Length(5));
 
@@ -132,10 +120,7 @@ impl App {
             .title(Line::raw(" Menu ").centered().style(MENU_HEADER_STYLE))
             .borders(Borders::ALL);
 
-        let items: Vec<&'static str> = self
-            .menu
-            .items
-            .clone();
+        let items: Vec<&'static str> = self.menu.items.clone();
 
         let list = List::new(items)
             .block(block)
