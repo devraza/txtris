@@ -30,16 +30,22 @@ const FOOTER_RIGHT_STYLE: Style = Style::new().fg(LIME.c400);
 fn main() -> Result<()> {
     color_eyre::install()?;
     let terminal = ratatui::init();
-    let app_result = App::default().run(terminal);
+    let app_result = GameMode::default().run(terminal);
     ratatui::restore();
     app_result
 }
 
-struct App {
-    should_exit: bool,
-    menu: MenuList,
+#[derive(Clone)]
+enum GameMode {
+    Exit,
+    MainMenu(MenuList),
+    FortyL,
+    Blitz,
+    TxLadder,
+    Config,
 }
 
+#[derive(Clone)]
 struct MenuList {
     items: Vec<&'static str>,
     state: ListState,
@@ -53,16 +59,60 @@ impl FromIterator<&'static str> for MenuList {
     }
 }
 
-impl Default for App {
-    fn default() -> Self {
-        Self {
-            should_exit: false,
-            menu: MenuList::from_iter(["40L", "Blitz", "txLadder", "Config"]),
+impl MenuList {
+    fn handle_key(&self, current_mode: GameMode, key: KeyEvent) -> GameMode {
+        match key.code {
+            KeyCode::Char('q') | KeyCode::Esc => GameMode::Exit,
+            KeyCode::Char('j') | KeyCode::Down => self.select_next(),
+            KeyCode::Char('k') | KeyCode::Up => self.select_previous(),
+            KeyCode::Char('c') => {
+                if key.modifiers.contains(event::KeyModifiers::CONTROL) {
+                    GameMode::Exit
+                } else {
+                    current_mode
+                }
+            }
+            _ => current_mode
         }
+    }
+
+    fn select_next(&self) -> GameMode {
+        let mut menu_list = self.clone();
+        menu_list.state.select_next();
+        GameMode::MainMenu(menu_list)
+    }
+
+    fn select_previous(&self) -> GameMode {
+        let mut menu_list = self.clone();
+        menu_list.state.select_previous();
+        GameMode::MainMenu(menu_list)
+    }
+
+    fn render(&mut self, area: Rect, buf: &mut Buffer) {
+        let block = Block::new()
+            .title(Line::raw(" Game ").centered().style(GAME_HEADER_STYLE))
+            .padding(Padding::symmetric(2, 1))
+            .borders(Borders::ALL);
+
+        let items: Vec<&'static str> = self.items.clone();
+
+        let list = List::new(items)
+            .block(block)
+            .highlight_style(SELECTED_STYLE)
+            .highlight_symbol(" ")
+            .highlight_spacing(HighlightSpacing::Always);
+
+        StatefulWidget::render(list, area, buf, &mut self.state);
     }
 }
 
-impl App {
+impl Default for GameMode {
+    fn default() -> Self {
+        GameMode::MainMenu(MenuList::from_iter(["40L", "Blitz", "txLadder", "Config"]))
+    }
+}
+
+impl GameMode {
     fn render_header(&mut self, area: Rect, buf: &mut Buffer) {
         Block::new()
             .title(Line::raw("  txtris  ").centered().style(HEADER_STYLE))
@@ -84,23 +134,6 @@ impl App {
             )
             .borders(Borders::BOTTOM)
             .render(area, buf);
-    }
-
-    fn render_list(&mut self, area: Rect, buf: &mut Buffer) {
-        let block = Block::new()
-            .title(Line::raw(" Game ").centered().style(GAME_HEADER_STYLE))
-            .padding(Padding::symmetric(2, 1))
-            .borders(Borders::ALL);
-
-        let items: Vec<&'static str> = self.menu.items.clone();
-
-        let list = List::new(items)
-            .block(block)
-            .highlight_style(SELECTED_STYLE)
-            .highlight_symbol(" ")
-            .highlight_spacing(HighlightSpacing::Always);
-
-        StatefulWidget::render(list, area, buf, &mut self.menu.state);
     }
 
     fn render_profile(&mut self, area: Rect, buf: &mut Buffer) {
@@ -133,37 +166,31 @@ impl App {
     }
 
     fn run(mut self, mut terminal: DefaultTerminal) -> Result<()> {
-        while !self.should_exit {
-            terminal.draw(|frame| frame.render_widget(&mut self, frame.area()))?;
-            if let Event::Key(key) = event::read()? {
-                self.handle_key(key);
-            };
+        loop {
+            match self {
+                GameMode::Exit => {
+                    break
+                }
+                _ => {
+                    terminal.draw(|frame| frame.render_widget(&mut self, frame.area()))?;
+                    if let Event::Key(key) = event::read()? {
+                        self = self.handle_key(key);
+                    };
+                }
+            }
         }
         Ok(())
     }
 
-    fn handle_key(&mut self, key: KeyEvent) {
+    fn handle_key(self, key: KeyEvent) -> GameMode {
         if key.kind != KeyEventKind::Press {
-            return;
+            return self
         }
-        match key.code {
-            KeyCode::Char('q') | KeyCode::Esc => self.should_exit = true,
-            KeyCode::Char('j') | KeyCode::Down => self.select_next(),
-            KeyCode::Char('k') | KeyCode::Up => self.select_previous(),
-            KeyCode::Char('c') => {
-                if key.modifiers.contains(event::KeyModifiers::CONTROL) {
-                    self.should_exit = true;
-                }
-            }
-            _ => {}
-        }
-    }
 
-    fn select_next(&mut self) {
-        self.menu.state.select_next();
-    }
-    fn select_previous(&mut self) {
-        self.menu.state.select_previous();
+        match self {
+            GameMode::MainMenu(ref menu_list) => menu_list.handle_key(self.clone(), key),
+            _ => return self,
+        }
     }
 }
 
@@ -175,7 +202,7 @@ fn center(area: Rect, horizontal: Constraint, vertical: Constraint) -> Rect {
     area
 }
 
-impl Widget for &mut App {
+impl Widget for &mut GameMode {
     fn render(self, area: Rect, buf: &mut Buffer) {
         let [header_area, main_area, footer_area] = Layout::vertical([
             Constraint::Length(1),
@@ -195,8 +222,14 @@ impl Widget for &mut App {
                 .areas(center_area);
 
         self.render_header(header_area, buf);
-        self.render_profile(profile_area, buf);
-        self.render_list(list_outer_area, buf);
+
+        match self {
+            GameMode::MainMenu(menu_list) => {
+                menu_list.render(list_outer_area, buf);
+                self.render_profile(profile_area, buf);
+            }
+            _ => {},
+        }
         self.render_footer(footer_area, buf);
     }
 }
