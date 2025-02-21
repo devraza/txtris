@@ -1,7 +1,8 @@
 use color_eyre::Result;
 
-mod tui;
+mod game;
 mod menu;
+mod tui;
 mod util;
 
 fn main() -> Result<()> {

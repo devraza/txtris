@@ -2,12 +2,12 @@
 use ratatui::{
     buffer::Buffer,
     crossterm::event::{self, KeyCode, KeyEvent},
-    layout::Rect,
-    text::{Line, Span},
+    layout::{Constraint, Layout, Rect},
     style::{Modifier, Style, Stylize, palette::tailwind::*},
+    text::{Line, Span},
     widgets::{
-        Block, Borders, HighlightSpacing, List,
-        ListState, Padding, StatefulWidget, Paragraph, Widget
+        Block, Borders, HighlightSpacing, List, ListState, Padding, Paragraph, StatefulWidget,
+        Widget,
     },
 };
 
@@ -113,6 +113,12 @@ impl OptionList {
                     tui::Mode::MainMenu(self)
                 }
             }
+            KeyCode::Enter => match self.items.get(self.state.selected().unwrap_or_default()) {
+                Some(&"Blitz") => tui::Mode::Blitz,
+                Some(&"40L") => tui::Mode::FortyL,
+                Some(&"txLadder") => tui::Mode::TxLadder,
+                _ => tui::Mode::Exit,
+            },
             _ => tui::Mode::MainMenu(self),
         }
     }
@@ -141,4 +147,13 @@ impl OptionList {
 
         StatefulWidget::render(list, area, buf, &mut self.state);
     }
+}
+
+pub fn render_menu(area: Rect, menu_list: &mut OptionList, buf: &mut Buffer) {
+    let [profile_area, list_outer_area] =
+        Layout::vertical([Constraint::Percentage(50), Constraint::Percentage(50)]).areas(area);
+
+    render_profile(profile_area, buf);
+
+    menu_list.render(list_outer_area, buf);
 }

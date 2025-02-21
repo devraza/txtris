@@ -7,6 +7,7 @@ use ratatui::{
     widgets::Widget,
 };
 
+use crate::game;
 use crate::menu;
 use crate::util::*;
 
@@ -22,7 +23,9 @@ pub enum Mode {
 
 impl Default for Mode {
     fn default() -> Self {
-        Mode::MainMenu(menu::OptionList::from_iter(["40L", "Blitz", "txLadder", "Config"]))
+        Mode::MainMenu(menu::OptionList::from_iter([
+            "40L", "Blitz", "txLadder", "Config",
+        ]))
     }
 }
 
@@ -30,9 +33,7 @@ impl Mode {
     pub fn run(mut self, mut terminal: DefaultTerminal) -> Result<()> {
         loop {
             match self {
-                Mode::Exit => {
-                    break
-                }
+                Mode::Exit => break,
                 _ => {
                     terminal.draw(|frame| frame.render_widget(&mut self, frame.area()))?;
                     if let Event::Key(key) = event::read()? {
@@ -46,7 +47,7 @@ impl Mode {
 
     fn handle_key(self, key: KeyEvent) -> Mode {
         if key.kind != KeyEventKind::Press {
-            return self 
+            return self;
         }
 
         match self {
@@ -71,18 +72,15 @@ impl Widget for &mut Mode {
             Constraint::Percentage(60),
         );
 
-        let [profile_area, list_outer_area] =
-            Layout::vertical([Constraint::Percentage(50), Constraint::Percentage(50)])
-                .areas(center_area);
-
         menu::render_header(header_area, buf);
 
         match self {
             Mode::MainMenu(menu_list) => {
-                menu::render_profile(profile_area, buf);
-                menu_list.render(list_outer_area, buf);
+                menu::render_menu(center_area, menu_list, buf);
             }
-            _ => {},
+            _ => {
+                game::render(center_area, buf);
+            }
         }
         menu::render_footer(footer_area, buf);
     }
