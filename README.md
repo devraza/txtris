@@ -8,4 +8,7 @@ The project is split into three distinct Cargo projects:
 - `txcore` - contains shared code between the server and client
 
 ## License
-Everything contained within this repository is covered by the [Apache License 2.0](./LICENSE.md)
+Everything contained within this repository is covered by the [Apache License 2.0](./LICENSE.md).
+
+## Acknowledgements
+- [Ratatui](https://ratatui.rs) for everything related to UI
