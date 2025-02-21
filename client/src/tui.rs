@@ -9,7 +9,7 @@ use ratatui::{
 
 use crate::game;
 use crate::menu;
-use crate::util::*;
+use crate::util::center;
 
 #[derive(Clone)]
 pub enum Mode {
@@ -32,15 +32,13 @@ impl Default for Mode {
 impl Mode {
     pub fn run(mut self, mut terminal: DefaultTerminal) -> Result<()> {
         loop {
-            match self {
-                Mode::Exit => break,
-                _ => {
-                    terminal.draw(|frame| frame.render_widget(&mut self, frame.area()))?;
-                    if let Event::Key(key) = event::read()? {
-                        self = self.handle_key(key);
-                    };
-                }
+            if let Mode::Exit = self {
+                break;
             }
+            terminal.draw(|frame| frame.render_widget(&mut self, frame.area()))?;
+            if let Event::Key(key) = event::read()? {
+                self = self.handle_key(key);
+            };
         }
         Ok(())
     }

@@ -3,7 +3,10 @@ use ratatui::{
     buffer::Buffer,
     crossterm::event::{self, KeyCode, KeyEvent},
     layout::{Constraint, Layout, Rect},
-    style::{Modifier, Style, Stylize, palette::tailwind::*},
+    style::{
+        Modifier, Style, Stylize,
+        palette::tailwind::*,
+    },
     text::{Line, Span},
     widgets::{
         Block, Borders, HighlightSpacing, List, ListState, Padding, Paragraph, StatefulWidget,
