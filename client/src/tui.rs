@@ -52,7 +52,7 @@ impl Mode {
 
         match self {
             Mode::MainMenu(menu_list) => menu_list.handle_key(key),
-            _ => Mode::Exit,
+            _ => Mode::Exit, // TODO: handle keys differently based on modes
         }
     }
 }
@@ -68,7 +68,7 @@ impl Widget for &mut Mode {
 
         let center_area = center(
             main_area,
-            Constraint::Length(50),
+            Constraint::Length(60),
             Constraint::Percentage(60),
         );
 
@@ -79,7 +79,7 @@ impl Widget for &mut Mode {
                 menu::render_menu(center_area, menu_list, buf);
             }
             _ => {
-                game::render(center_area, buf);
+                game::render(self, center_area, buf);
             }
         }
         menu::render_footer(footer_area, buf);
