@@ -45,12 +45,12 @@ impl Mode {
 
     fn handle_key(self, key: KeyEvent) -> Mode {
         if key.kind != KeyEventKind::Press {
-            return self
+            return self 
         }
 
         match self {
-            Mode::MainMenu(ref menu_list) => menu_list.handle_key(self.clone(), key),
-            _ => return self,
+            Mode::MainMenu(menu_list) => menu_list.handle_key(key),
+            _ => Mode::Exit,
         }
     }
 }
@@ -86,8 +86,8 @@ impl Widget for &mut Mode {
 
         match self {
             Mode::MainMenu(menu_list) => {
-                menu_list.render(list_outer_area, buf);
                 menu::render_profile(profile_area, buf);
+                menu_list.render(list_outer_area, buf);
             }
             _ => {},
         }

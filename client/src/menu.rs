@@ -14,6 +14,21 @@ use ratatui::prelude::*;
 
 use crate::game;
 
+const GAME_HEADER_STYLE: Style = Style::new()
+    .fg(ZINC.c100)
+    .bg(BLUE.c600)
+    .add_modifier(Modifier::BOLD);
+const PROFILE_HEADER_STYLE: Style = Style::new()
+    .fg(ZINC.c100)
+    .bg(VIOLET.c600)
+    .add_modifier(Modifier::BOLD);
+
+const HEADER_STYLE: Style = Style::new().fg(ROSE.c500).add_modifier(Modifier::BOLD);
+const SELECTED_STYLE: Style = Style::new().bg(ZINC.c700).add_modifier(Modifier::BOLD);
+
+const FOOTER_LEFT_STYLE: Style = Style::new().fg(PURPLE.c400).add_modifier(Modifier::BOLD);
+const FOOTER_RIGHT_STYLE: Style = Style::new().fg(LIME.c400);
+
 pub fn render_header(area: Rect, buf: &mut Buffer) {
     Block::new()
         .title(Line::raw("  txtris  ").centered().style(HEADER_STYLE))
@@ -72,21 +87,6 @@ pub struct OptionList {
     state: ListState,
 }
 
-const GAME_HEADER_STYLE: Style = Style::new()
-    .fg(ZINC.c100)
-    .bg(BLUE.c600)
-    .add_modifier(Modifier::BOLD);
-const PROFILE_HEADER_STYLE: Style = Style::new()
-    .fg(ZINC.c100)
-    .bg(VIOLET.c600)
-    .add_modifier(Modifier::BOLD);
-
-const HEADER_STYLE: Style = Style::new().fg(ROSE.c500).add_modifier(Modifier::BOLD);
-const SELECTED_STYLE: Style = Style::new().bg(ZINC.c700).add_modifier(Modifier::BOLD);
-
-const FOOTER_LEFT_STYLE: Style = Style::new().fg(PURPLE.c400).add_modifier(Modifier::BOLD);
-const FOOTER_RIGHT_STYLE: Style = Style::new().fg(LIME.c400);
-
 impl FromIterator<&'static str> for OptionList {
     fn from_iter<I: IntoIterator<Item = &'static str>>(iter: I) -> Self {
         let items = iter.into_iter().collect();
@@ -96,32 +96,34 @@ impl FromIterator<&'static str> for OptionList {
 }
 
 impl OptionList {
-    pub fn handle_key(&self, current_mode: game::Mode, key: KeyEvent) -> game::Mode {
+    pub fn handle_key(mut self, key: KeyEvent) -> game::Mode {
         match key.code {
             KeyCode::Char('q') | KeyCode::Esc => game::Mode::Exit,
-            KeyCode::Char('j') | KeyCode::Down => self.select_next(),
-            KeyCode::Char('k') | KeyCode::Up => self.select_previous(),
+            KeyCode::Char('j') | KeyCode::Down => {
+                self.select_next();
+                game::Mode::MainMenu(self)
+            }
+            KeyCode::Char('k') | KeyCode::Up => {
+                self.select_previous();
+                game::Mode::MainMenu(self)
+            }
             KeyCode::Char('c') => {
                 if key.modifiers.contains(event::KeyModifiers::CONTROL) {
                     game::Mode::Exit
                 } else {
-                    current_mode
+                    game::Mode::MainMenu(self)
                 }
             }
-            _ => current_mode
+            _ => game::Mode::MainMenu(self),
         }
     }
 
-    fn select_next(&self) -> game::Mode {
-        let mut menu_list = self.clone();
-        menu_list.state.select_next();
-        game::Mode::MainMenu(menu_list)
+    fn select_next(&mut self) {
+        self.state.select_next();
     }
 
-    fn select_previous(&self) -> game::Mode {
-        let mut menu_list = self.clone();
-        menu_list.state.select_previous();
-        game::Mode::MainMenu(menu_list)
+    fn select_previous(&mut self) {
+        self.state.select_previous();
     }
 
     pub fn render(&mut self, area: Rect, buf: &mut Buffer) {
