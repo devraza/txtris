@@ -58,7 +58,7 @@ pub fn render_profile(area: Rect, buf: &mut Buffer) {
                 .centered()
                 .style(PROFILE_HEADER_STYLE),
         )
-        .padding(Padding::symmetric(2, 1))
+        .padding(Padding::symmetric(3, 1))
         .borders(Borders::ALL);
 
     let text = vec![
