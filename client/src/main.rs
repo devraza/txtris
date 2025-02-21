@@ -2,6 +2,7 @@ use color_eyre::Result;
 
 mod game;
 mod menu;
+mod util;
 
 fn main() -> Result<()> {
     color_eyre::install()?;

@@ -3,11 +3,12 @@ use ratatui::{
     DefaultTerminal,
     buffer::Buffer,
     crossterm::event::{self, Event, KeyEvent, KeyEventKind},
-    layout::{Constraint, Flex, Layout, Rect},
+    layout::{Constraint, Layout, Rect},
     widgets::Widget,
 };
 
 use crate::menu;
+use crate::util::*;
 
 #[derive(Clone)]
 pub enum Mode {
@@ -53,14 +54,6 @@ impl Mode {
             _ => Mode::Exit,
         }
     }
-}
-
-fn center(area: Rect, horizontal: Constraint, vertical: Constraint) -> Rect {
-    let [area] = Layout::horizontal([horizontal])
-        .flex(Flex::Center)
-        .areas(area);
-    let [area] = Layout::vertical([vertical]).flex(Flex::Center).areas(area);
-    area
 }
 
 impl Widget for &mut Mode {
