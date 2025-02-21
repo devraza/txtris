@@ -7,12 +7,11 @@ use ratatui::{
     style::{Modifier, Style, Stylize, palette::tailwind::*},
     widgets::{
         Block, Borders, HighlightSpacing, List,
-        ListState, Padding, StatefulWidget, Paragraph
+        ListState, Padding, StatefulWidget, Paragraph, Widget
     },
 };
-use ratatui::prelude::*;
 
-use crate::game;
+use crate::tui;
 
 const GAME_HEADER_STYLE: Style = Style::new()
     .fg(ZINC.c100)
@@ -96,25 +95,25 @@ impl FromIterator<&'static str> for OptionList {
 }
 
 impl OptionList {
-    pub fn handle_key(mut self, key: KeyEvent) -> game::Mode {
+    pub fn handle_key(mut self, key: KeyEvent) -> tui::Mode {
         match key.code {
-            KeyCode::Char('q') | KeyCode::Esc => game::Mode::Exit,
+            KeyCode::Char('q') | KeyCode::Esc => tui::Mode::Exit,
             KeyCode::Char('j') | KeyCode::Down => {
                 self.select_next();
-                game::Mode::MainMenu(self)
+                tui::Mode::MainMenu(self)
             }
             KeyCode::Char('k') | KeyCode::Up => {
                 self.select_previous();
-                game::Mode::MainMenu(self)
+                tui::Mode::MainMenu(self)
             }
             KeyCode::Char('c') => {
                 if key.modifiers.contains(event::KeyModifiers::CONTROL) {
-                    game::Mode::Exit
+                    tui::Mode::Exit
                 } else {
-                    game::Mode::MainMenu(self)
+                    tui::Mode::MainMenu(self)
                 }
             }
-            _ => game::Mode::MainMenu(self),
+            _ => tui::Mode::MainMenu(self),
         }
     }
 
