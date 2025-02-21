@@ -13,16 +13,16 @@ use ratatui::{
 };
 
 const GAME_HEADER_STYLE: Style = Style::new()
-    .fg(ZINC.c100)
+    .fg(NEUTRAL.c100)
     .bg(BLUE.c600)
     .add_modifier(Modifier::BOLD);
 const PROFILE_HEADER_STYLE: Style = Style::new()
-    .fg(ZINC.c100)
+    .fg(NEUTRAL.c100)
     .bg(VIOLET.c600)
     .add_modifier(Modifier::BOLD);
 
 const HEADER_STYLE: Style = Style::new().fg(ROSE.c500).add_modifier(Modifier::BOLD);
-const SELECTED_STYLE: Style = Style::new().bg(ZINC.c700).add_modifier(Modifier::BOLD);
+const SELECTED_STYLE: Style = Style::new().bg(NEUTRAL.c700).add_modifier(Modifier::BOLD);
 
 const FOOTER_LEFT_STYLE: Style = Style::new().fg(PURPLE.c400).add_modifier(Modifier::BOLD);
 const FOOTER_RIGHT_STYLE: Style = Style::new().fg(LIME.c400);
